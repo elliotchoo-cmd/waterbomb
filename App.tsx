@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from 'react';
 import Game from './components/Game';
 import MainMenu from './components/MainMenu';
@@ -32,6 +31,10 @@ const App: React.FC = () => {
         @keyframes fade-in {
           from { opacity: 0; transform: scale(0.9); }
           to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes fly-out {
+          from { transform: translate(0, 0) scale(1); opacity: 1; }
+          to { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
         }
       `}</style>
       {gameStatus === 'main-menu' && <MainMenu onStartGame={handleStartGame} />}

@@ -1,4 +1,3 @@
-
 import React, { useRef, useMemo } from 'react';
 import { useGameLoop } from '../hooks/useGameLoop';
 import { AIDifficulty, GameState, ProjectileData, Coordinates } from '../types';
@@ -13,24 +12,36 @@ interface GameProps {
 }
 
 const Catapult: React.FC<{position: Coordinates, owner: 'player' | 'ai'}> = ({ position, owner }) => {
-    const color = owner === 'player' ? 'bg-blue-600' : 'bg-red-600';
-    const borderColor = owner === 'player' ? 'border-blue-300' : 'border-red-300';
-    const armTransform = owner === 'player' ? 'rotate-45' : '-rotate-45';
+    const isPlayer = owner === 'player';
+    const color = isPlayer ? 'bg-sky-700' : 'bg-red-700';
+    const borderColor = isPlayer ? 'border-sky-400' : 'border-red-400';
+    const woodColor = 'bg-gradient-to-b from-yellow-800 to-yellow-950';
+    const woodBorder = 'border-yellow-950';
+    const armTransform = isPlayer ? 'rotate-[30deg]' : 'rotate-[-30deg]';
 
     return (
-        <div className="absolute drop-shadow-lg" style={{ left: position.x - 25, top: position.y - 50, width: 50, height: 50 }}>
+        <div className="absolute drop-shadow-lg" style={{ left: position.x - 30, top: position.y - 60, width: 60, height: 60 }}>
             {/* Base */}
-            <div className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-4 ${color} rounded-t-md border-2 ${borderColor}`}></div>
-            <div className={`absolute bottom-4 left-1/2 -translate-x-1/2 w-5 h-8 ${color} border-x-2 ${borderColor}`}></div>
+            <div className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-20 h-5 ${color} rounded-t-md ${borderColor} border-2`}></div>
+            
+            {/* Frame */}
+            <div className={`absolute bottom-5 left-[calc(50%-18px)] w-4 h-10 ${woodColor} ${woodBorder} border-2 -rotate-[15deg] rounded-sm`}></div>
+            <div className={`absolute bottom-5 left-[calc(50%+2px)] w-4 h-10 ${woodColor} ${woodBorder} border-2 rotate-[15deg] rounded-sm`}></div>
+            
             {/* Arm */}
-            <div className={`absolute bottom-8 left-1/2 -translate-x-1/2 w-3 h-12 origin-bottom transform ${armTransform} border-2 ${borderColor} rounded-md bg-gray-600`}>
+            <div className={`absolute bottom-12 left-1/2 -translate-x-1/2 w-3 h-16 origin-bottom transform ${armTransform} ${woodColor} ${woodBorder} border-2 rounded-md`}>
                 {/* Bucket */}
-                <div className={`absolute -top-1 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full border-2 ${borderColor} ${color}`}></div>
+                <div className={`absolute -top-1 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full border-2 border-gray-500 bg-gray-700 flex items-center justify-center`}>
+                    <div className="w-6 h-6 bg-black/50 rounded-full"></div>
+                </div>
             </div>
         </div>
     );
 };
 
+const Sun: React.FC = () => (
+    <div className="absolute top-16 left-1/2 -translate-x-1/2 w-32 h-32 bg-yellow-300 rounded-full blur-xl opacity-80"></div>
+);
 
 const Flag: React.FC<{ position: Coordinates, dryness: number, owner: 'player' | 'ai' }> = ({ position, dryness, owner }) => {
     const color = owner === 'player' ? 'blue' : 'red';
@@ -39,7 +50,7 @@ const Flag: React.FC<{ position: Coordinates, dryness: number, owner: 'player' |
 
     return (
         <div className="absolute" style={{ left: position.x - (FLAG_WIDTH / 2), top: position.y - FLAG_HEIGHT }}>
-            <div className="w-2 h-24 bg-gray-600 rounded-t-sm shadow-md" />
+            <div className="w-2 h-24 bg-gradient-to-b from-yellow-700 to-yellow-900 rounded-t-sm shadow-md" />
             <div
                 className={`w-16 h-12 bg-${color}-500 transition-all duration-300 origin-top-left`}
                 style={{ 
@@ -153,14 +164,15 @@ const Game: React.FC<GameProps> = ({ difficulty, onGameOver }) => {
         onClick={handleDefenseClick}
       >
         {/* Background Elements */}
+        <Sun />
         <div className="absolute top-20 left-40 w-32 h-16 bg-white/20 rounded-full opacity-50 blur-sm"></div>
         <div className="absolute top-32 left-32 w-24 h-12 bg-white/10 rounded-full opacity-50 blur-sm"></div>
         <div className="absolute top-24 right-40 w-40 h-20 bg-white/20 rounded-full opacity-50 blur-sm"></div>
         <div className="absolute top-40 right-32 w-28 h-14 bg-white/10 rounded-full opacity-50 blur-sm"></div>
         
         {/* Game World */}
-        <div className="absolute bottom-0 left-0 w-full bg-yellow-200" style={{height: GAME_HEIGHT - GROUND_HEIGHT}}></div>
-        <div className="absolute bottom-0 left-0 w-full h-2 bg-green-600" style={{top: GROUND_HEIGHT-2}}></div>
+        <div className="absolute bottom-0 left-0 w-full bg-gradient-to-b from-amber-200 to-amber-400" style={{height: GAME_HEIGHT - GROUND_HEIGHT}}></div>
+        <div className="absolute bottom-0 left-0 w-full h-3 bg-lime-600" style={{top: GROUND_HEIGHT-3}}></div>
 
         {/* Characters & Flags */}
         <Catapult position={player.position} owner="player" />
@@ -180,16 +192,29 @@ const Game: React.FC<GameProps> = ({ difficulty, onGameOver }) => {
         {effects.map(effect => (
             <React.Fragment key={effect.id}>
                 {effect.type === 'SPLOOSH' && (
-                    <div className="absolute rounded-full"
+                  <div className="absolute" style={{ left: effect.position.x, top: effect.position.y, pointerEvents: 'none' }}>
+                    <div className="absolute rounded-full -translate-x-1/2 -translate-y-1/2"
                          style={{ 
-                             left: effect.position.x - 50, 
-                             top: effect.position.y - 50, 
-                             width: 100, 
-                             height: 100, 
+                             width: 150, 
+                             height: 150, 
                              animation: 'explode 0.4s forwards',
                              background: 'radial-gradient(circle, rgba(96,165,250,0.8) 0%, rgba(59,130,246,0) 70%)' 
                          }}>
                     </div>
+                    {[...Array(8)].map((_, i) => {
+                        const angle = (i / 8) * 2 * Math.PI;
+                        const finalPos = { x: 80 * Math.cos(angle), y: 80 * Math.sin(angle) };
+                        return (
+                            <div key={i} className="absolute w-2 h-4 bg-blue-400 rounded-full -translate-x-1/2 -translate-y-1/2"
+                                style={{
+                                    animation: `fly-out 0.5s ease-out forwards`,
+                                    '--dx': `${finalPos.x}px`,
+                                    '--dy': `${finalPos.y}px`
+                                } as React.CSSProperties}
+                            ></div>
+                        );
+                    })}
+                  </div>
                 )}
                 <div className="absolute text-white font-bold text-2xl drop-shadow-lg flex items-center gap-1" style={{ left: effect.position.x, top: effect.position.y, animation: 'fade-out-up 1.5s forwards' }}>
                     {effect.type === '+1 BOMB' && <BombIcon className="w-6 h-6 text-yellow-300" />}

@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { GameState, AIDifficulty, Coordinates, ProjectileData, Phase } from '../types';
 import {
