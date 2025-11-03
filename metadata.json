@@ -1,0 +1,5 @@
+{
+  "name": "Waterbomb",
+  "description": "A 1v1, single-player, physics-based artillery online game where players take turns launching water bombs to soak an opponent's flag while defending their own in real-time. The core mechanic involves intercepting enemy bombs to add them to your own arsenal.",
+  "requestFramePermissions": []
+}
